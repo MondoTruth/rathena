@@ -1,0 +1,220 @@
+//===== rAthena Script =======================================
+//= Instance: Shadow Manor.
+//===== Description: =========================================
+//- [Walkthrough conversion]
+//- Part of the Shadow Cross job change (npc/re/jobs/4-1/shadow_cross.txt).
+//- Follows the official quest flow; the dialog is our own
+//- wording, not a translation of the official text.
+//- Officially, three NPCs appear after the first talk with the Shadow,
+//- and the Shadow possesses one of them to attack you. Who the three are
+//- is not known: here they are Doomk and two Shadow Chasers, and the
+//- Shadow takes Doomk (4JOB_DOOMK).
+//- The positions of the NPCs inside 1@4sac are unknown and were picked
+//- by us on walkable cells of the south corridor of the main hall.
+//- 4JOB_DOOMK's stats are unofficial.
+//- No experience and no loot on the instance map.
+//===== Changelogs: ==========================================
+//= 1.0 First version. [MondoTruth]
+//============================================================
+
+// 'sc_step:
+//  0 just entered
+//  1 talked to Verkhasel, go to the Shadow
+//  2 the three have appeared
+//  3 the Shadow took one of them: fight
+//  4 the possessed one is down, talk to the Shadow
+//  5 the Shadow is free, talk to Verkhasel
+
+1@4sac,91,25,3	script	Verkhasel#sc1	467,{
+	switch('sc_step) {
+	case 0:
+		mes "[Verkhasel]";
+		mes "So this is where it hides. Feel how cold it is in here?";
+		mes "Something has a grip on that shadow. Let's find out what.";
+		next;
+		mes "[Verkhasel]";
+		mes "It's waiting for you, a little further in. Go and talk to it.";
+		'sc_step = 1;
+		close;
+	case 1:
+	case 2:
+	case 3:
+	case 4:
+		mes "[Verkhasel]";
+		mes "Go on, the shadow is just ahead. I'll watch your back.";
+		next;
+		if (select( "All right.", "Give up." ) == 2) {
+			mes "[Verkhasel]";
+			mes "Giving up ends this. You'll need a rest before you can try again.";
+			mes "Are you sure?";
+			next;
+			if (select( "Stay.", "Leave." ) == 2) {
+				.@id = instance_id();
+				setquest 12511;
+				warp "ve_fild05",317,232;
+				instance_destroy .@id;
+				end;
+			}
+		}
+		close;
+	}
+	mes "[Verkhasel]";
+	mes "You freed it. Nobody else in the guild could have done that.";
+	mes "You walk in the dark and don't get lost in it. That's what a ^ff0000Shadow Cross^000000 is.";
+	next;
+	if (Class != JOB_GUILLOTINE_CROSS && Class != JOB_GUILLOTINE_CROSS_T) {
+		mes "[Verkhasel]";
+		mes "Hm? You're not a Guillotine Cross anymore. I can't help you like this.";
+		close;
+	}
+	if (SkillPoint > 0) {
+		mes "[Verkhasel]";
+		mes "You still have skill points left. Learn your skills first.";
+		close;
+	}
+	if (countitem(7799) < 5 || countitem(6089) < 20) {
+		mes "[Verkhasel]";
+		mes "Where are the crystals and the pieces? We need them for the last step.";
+		mes "^0000ff5 Crystal of Darkness^000000 (" + countitem(7799) + " / 5)";
+		mes "^0000ff20 Dark Piece^000000 (" + countitem(6089) + " / 20)";
+		close;
+	}
+	if (checkweight(490087,1) == 0) {
+		mes "[Verkhasel]";
+		mes "You're carrying too much. Make some room in your inventory first.";
+		close;
+	}
+	mes "[Verkhasel]";
+	mes "Will you take the darkness in and become a Shadow Cross?";
+	next;
+	if (select( "Wait, let me think...", "Yes." ) == 1) {
+		mes "[Verkhasel]";
+		mes "Take your time.";
+		close;
+	}
+	mes "[Verkhasel]";
+	mes "Hold the crystals. Let the darkness come to you.";
+	close2;
+	// The official animation is not known.
+	specialeffect2 EF_DARKBREATH;
+	sleep2 1000;
+	specialeffect2 EF_LEVEL99_4;
+	sleep2 1000;
+	delitem 7799,5;	// Dark_Crystal
+	delitem 6089,20;	// Piece_Of_Darkness
+	job_sc_4th = 0;
+	completequest 12510;
+	jobchange JOB_SHADOW_CROSS;
+	getitem 490087,1;	// 4th_Q_Necklace
+	specialeffect2 EF_JOBLVUP;
+	mes "[Verkhasel]";
+	mes "Welcome, Shadow Cross. Keep the necklace as proof.";
+	mes "Let's get out of here.";
+	close2;
+	.@id = instance_id();
+	warp "ve_fild05",317,232;
+	instance_destroy .@id;
+	end;
+
+OnInstanceInit:
+	'sc_map$ = instance_mapname("1@4sac");
+	'sc_step = 0;
+	setmapflag 'sc_map$, MF_NOBASEEXP;
+	setmapflag 'sc_map$, MF_NOJOBEXP;
+	setmapflag 'sc_map$, MF_NOMOBLOOT;
+	setmapflag 'sc_map$, MF_NOMVPLOOT;
+	end;
+}
+
+1@4sac,103,25,3	script	Shadow#sc1	1_SHADOW_NPC,{
+	switch('sc_step) {
+	case 0:
+		mes "- The pale shadow from the shore. -";
+		mes "- It looks back to Verkhasel, as if waiting for him. -";
+		close;
+	case 1:
+		mes "- You call it Blackie, as Tori does. -";
+		next;
+		mes "[Shadow]";
+		mes "...You came. Tori trusted you, so I will too.";
+		mes "They are here. They want me back.";
+		'sc_step = 2;
+		close2;
+		enablenpc instance_npcname("Doomk#sc1");
+		enablenpc instance_npcname("Shadow Chaser#sc1");
+		enablenpc instance_npcname("Shadow Chaser#sc2");
+		mapannounce 'sc_map$, "Three figures step out of the dark.", bc_map, 0xFFFF00;
+		end;
+	case 2:
+		mes "[Shadow]";
+		mes "I can't stay in the dark with them anymore.";
+		mes "If I take one of them over, can you stop him?";
+		next;
+		if (select( "Wait.", "Do it." ) == 1)
+			close;
+		mes "[Shadow]";
+		mes "Then here I go!";
+		close2;
+		donpcevent instance_npcname("#sc_fight") + "::OnStart";
+		end;
+	case 3:
+		mes "- The shadow is inside one of them. Stop him! -";
+		close;
+	case 4:
+		mes "[Shadow]";
+		mes "...It's over. Their hold on me is gone.";
+		mes "Thank you. I can go back to Tori now.";
+		next;
+		mes "[Shadow]";
+		mes "Verkhasel is waiting for you.";
+		'sc_step = 5;
+		close;
+	default:
+		mes "- The shadow lies quietly at your feet. -";
+		close;
+	}
+}
+
+// The three who appear. The Shadow possesses Doomk.
+1@4sac,112,24,3	script	Doomk#sc1	4_M_SHADOWCHASER,{
+	mes "[Doomk]";
+	mes "That shadow is ours. Stay out of this.";
+	close;
+
+OnInstanceInit:
+	disablenpc();
+	end;
+}
+
+1@4sac,115,25,3	script	Shadow Chaser#sc1	4_F_SHADOWCHASER,{
+	mes "[Shadow Chaser]";
+	mes "...";
+	close;
+
+OnInstanceInit:
+	disablenpc();
+	end;
+}
+1@4sac,110,25,3	duplicate(Shadow Chaser#sc1)	Shadow Chaser#sc2	4_M_SHADOWCHASER
+
+1@4sac,1,1,0	script	#sc_fight	-1,{
+	end;
+
+OnStart:
+	if ('sc_step != 2)
+		end;
+	'sc_step = 3;
+	disablenpc instance_npcname("Doomk#sc1");
+	monster 'sc_map$,112,24,"Possessed Doomk","4JOB_DOOMK",1, instance_npcname("#sc_fight") + "::OnDoomkDead";
+	mapannounce 'sc_map$, "The shadow sinks into Doomk. Doomk attacks you!", bc_map, 0xFFFF00;
+	end;
+
+OnDoomkDead:
+	if ('sc_step != 3)
+		end;
+	'sc_step = 4;
+	disablenpc instance_npcname("Shadow Chaser#sc1");
+	disablenpc instance_npcname("Shadow Chaser#sc2");
+	mapannounce 'sc_map$, "The shadow leaves Doomk's body. Talk to the Shadow.", bc_map, 0xFFFF00;
+	end;
+}

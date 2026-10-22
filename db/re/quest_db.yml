@@ -9934,6 +9934,11 @@ Body:
   - Id: 12509
     Title: Cool Down
     TimeLimit: +30mn
+  - Id: 12510
+    Title: The Pale Shadow
+  - Id: 12511
+    Title: Cool Down
+    TimeLimit: +30mn
   - Id: 12520
     Title: "[Normal] Villa of Deception"
   - Id: 12521

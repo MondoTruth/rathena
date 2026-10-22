@@ -1,0 +1,298 @@
+//===== rAthena Script =======================================
+//= Job change : Shadow Cross
+//===== Description: =========================================
+//- [Walkthrough conversion]
+//- Follows the official quest flow; the dialog is our own
+//- wording, not a translation of the official text.
+//- The last part takes place in an instance
+//- (npc/re/instances/ShadowManor.txt).
+//- NPC positions in the field are those of the iRO Wiki guide.
+//- Unknown, picked by us: the sprites of Noah, Tori and the Pale
+//- Shadow, and the place of the villager, Noah and Tori.
+//===== Changelogs: ==========================================
+//= 1.0 First version. [MondoTruth]
+//============================================================
+
+// job_sc_4th:
+//  1 talked to Rumin, find Verkhasel
+//  2 Verkhasel sent you to the southern shore
+//  3 a villager told you about Tori
+//  4 Noah called Tori out
+//  5 Tori told you about his shadowy friend
+//  6 the shadow trusts you, report to Verkhasel
+//  7 Verkhasel waits for you at ve_fild05 with the materials
+
+job3_guil01,74,92,5	script	Rumin#sc_start	4_M_THIEF_RUMIN,{
+	if (Class == JOB_SHADOW_CROSS) {
+		mes "[Rumin]";
+		mes "Shadow Cross! Drinks are on the house today. Well, the first one.";
+		close;
+	}
+	if (Class != JOB_GUILLOTINE_CROSS && Class != JOB_GUILLOTINE_CROSS_T) {
+		mes "[Rumin]";
+		mes "Looking for someone? This is a quiet tavern. Keep it that way.";
+		close;
+	}
+	if (BaseLevel < 200 || JobLevel < 70) {
+		mes "[Rumin]";
+		mes "The guild has work for a Guillotine Cross who has gone further than you.";
+		mes "Come back at ^dd5555Base Level 200 and Job Level 70^000000.";
+		close;
+	}
+	if (job_sc_4th == 0) {
+		mes "[Rumin]";
+		mes "You're " + strcharinfo(0) + ", aren't you? I've been waiting for you.";
+		mes "Verkhasel has something odd going on, and he asked for you by name.";
+		next;
+		if (select( "What kind of odd?", "Not interested." ) == 2) {
+			mes "[Rumin]";
+			mes "Suit yourself. He'll still be waiting.";
+			close;
+		}
+		mes "[Rumin]";
+		mes "Shadows that move on their own, people say. He'll explain.";
+		mes "His safe house is in the ^0000ffeast district of Veins^000000.";
+		mes "The building at the east end of town. Go and see him.";
+		job_sc_4th = 1;
+		setquest 12510;
+		close;
+	}
+	mes "[Rumin]";
+	mes "Verkhasel is the one you need, not me.";
+	mes "His safe house is in the ^0000ffeast district of Veins^000000.";
+	close;
+}
+
+ve_in,212,384,3	script	Verkhasel#sc_house	467,{
+	if (Class == JOB_SHADOW_CROSS) {
+		mes "[Verkhasel]";
+		mes "The shadow is quiet these days. Thanks to you.";
+		close;
+	}
+	switch(job_sc_4th) {
+	case 0:
+		mes "[Verkhasel]";
+		mes "This is a safe house. You'd better have a good reason to be here.";
+		close;
+	case 1:
+		mes "[Verkhasel]";
+		mes "Rumin sent you. Good.";
+		mes "For some days now, people at the ^0000ffferry landing on the southern shore^000000 keep seeing a shadow with nobody to cast it.";
+		next;
+		mes "[Verkhasel]";
+		mes "Shadows are our trade, and I don't like one I can't explain.";
+		mes "Go to the southern shore and find out what it is.";
+		job_sc_4th = 2;
+		close;
+	case 2:
+	case 3:
+	case 4:
+	case 5:
+		mes "[Verkhasel]";
+		mes "Find out what that shadow on the ^0000ffsouthern shore^000000 is.";
+		close;
+	case 6:
+		mes "[Verkhasel]";
+		mes "A shadow that a boy calls his friend, and that is afraid of something?";
+		mes "Then something is hunting it, and that something hides in the dark.";
+		next;
+		mes "[Verkhasel]";
+		mes "We'll need to draw it out. For that, bring me:";
+		mes "^0000ff5 Crystal of Darkness^000000";
+		mes "^0000ff20 Dark Piece^000000";
+		next;
+		mes "[Verkhasel]";
+		mes "I'll wait for you outside the town, ^0000ffnorth of Veins^000000, where the shadow led me.";
+		mes "Come with a party of your own, alone.";
+		job_sc_4th = 7;
+		close;
+	default:
+		mes "[Verkhasel]";
+		mes "I'll be waiting ^0000ffnorth of Veins^000000. Bring the crystals and the pieces.";
+		close;
+	}
+}
+
+// The villager appears when you look at the shadow for the first time.
+ve_fild07,99,141,0	script	Pale Shadow#sc	1_SHADOW_NPC,{
+	switch(job_sc_4th) {
+	case 2:
+		mes "- A pale shadow lies on the sand. -";
+		mes "- Nothing is there to cast it. -";
+		next;
+		mes "- When you step closer, it slides away from you. -";
+		next;
+		mes "[Villager]";
+		mes "You're after that shadow too? Don't scare it.";
+		mes "Little ^0000ffTori^000000 plays with it all the time. He'd know more than me.";
+		next;
+		mes "[Villager]";
+		mes "He's shy, though. Ask ^0000ffNoah^000000 near the ^0000ffSecurity Management Room^000000 in town, he knows where the boy lives.";
+		job_sc_4th = 3;
+		close;
+	case 3:
+	case 4:
+		mes "- The shadow keeps away from you. -";
+		mes "- Maybe Tori can tell you something. -";
+		close;
+	case 5:
+		mes "- You call it by the name Tori gave it: Blackie. -";
+		next;
+		mes "- The pale shadow stops. -";
+		mes "- Slowly, it comes up to your feet and stays there. -";
+		next;
+		mes "- It trembles and points north, again and again. -";
+		mes "- Whatever it is afraid of, it is there. -";
+		next;
+		mes "- You should tell Verkhasel. -";
+		job_sc_4th = 6;
+		close;
+	case 6:
+		mes "- The shadow waits for you to bring help. -";
+		close;
+	default:
+		mes "- Just a shadow on the sand. -";
+		close;
+	}
+}
+
+veins,87,158,5	script	Noah#sc	943,{
+	if (job_sc_4th != 3 && job_sc_4th != 4) {
+		mes "[Noah]";
+		mes "Keep your nose clean. The Security Management Room is right behind me.";
+		close;
+	}
+	if (job_sc_4th == 4) {
+		mes "[Noah]";
+		mes "Tori's right there. Go easy on him.";
+		close;
+	}
+	mes "[Noah]";
+	mes "Tori? Sure, he lives just here.";
+	mes "He won't come out for a stranger, though. Call him yourself.";
+	next;
+	mes "- Who do you call? -";
+	next;
+	input .@name$;
+	if (.@name$ != "Tori") {
+		mes "[Noah]";
+		mes "Nobody by that name lives here.";
+		close;
+	}
+	mes "[Noah]";
+	mes "There he is.";
+	job_sc_4th = 4;
+	close2;
+	cloakoffnpcself "Tori#sc";
+	end;
+}
+
+// Only players who called him can see Tori.
+veins	mapflag	loadevent
+
+veins,85,156,5	script	Tori#sc	944,{
+	if (job_sc_4th != 4)
+		end;
+	mes "[Tori]";
+	mes "You want to know about Blackie?";
+	mes "He's my friend. He's a shadow, but he's nice.";
+	next;
+	mes "[Tori]";
+	mes "He's been scared lately. He doesn't want to go home.";
+	mes "If you call him ^0000ffBlackie^000000, he'll know Tori sent you.";
+	next;
+	mes "[Tori]";
+	mes "You'll help him, right?";
+	job_sc_4th = 5;
+	close2;
+	cloakonnpcself;
+	end;
+
+OnInit:
+	cloakonnpc;
+	end;
+
+OnPCLoadMapEvent:
+	if (strcharinfo(3) == "veins" && job_sc_4th == 4)
+		cloakoffnpcself;
+	end;
+}
+
+ve_fild05,317,235,3	script	Verkhasel#sc_start	467,{
+	.@md_name$ = "Shadow Manor";
+
+	if (job_sc_4th < 7 || (Class != JOB_GUILLOTINE_CROSS && Class != JOB_GUILLOTINE_CROSS_T)) {
+		mes "- Someone is watching the road from the shadows. -";
+		close;
+	}
+	if (isbegin_quest(12511) == 1) {
+		if (checkquest(12511,PLAYTIME) != 2) {
+			mes "[Verkhasel]";
+			mes "You look worn out. Rest a while, then come back.";
+			close;
+		}
+		erasequest 12511;
+	}
+	if (countitem(7799) < 5 || countitem(6089) < 20) {
+		mes "[Verkhasel]";
+		mes "Without the materials we can't draw it out. Bring me:";
+		mes "^0000ff5 Crystal of Darkness^000000 (" + countitem(7799) + " / 5)";
+		mes "^0000ff20 Dark Piece^000000 (" + countitem(6089) + " / 20)";
+		close;
+	}
+	if (SkillPoint > 0) {
+		mes "[Verkhasel]";
+		mes "You still have skill points left. Learn your skills first.";
+		close;
+	}
+	if (getcharid(1) == 0 || is_party_leader() == false) {
+		mes "[Verkhasel]";
+		mes "Make a party of your own and lead it.";
+		close;
+	}
+	getpartymember getcharid(1), 0;
+	if ($@partymembercount > 1) {
+		mes "[Verkhasel]";
+		mes "This is your job. Make a party with ^0000ffonly yourself^000000 in it.";
+		close;
+	}
+	mes "[Verkhasel]";
+	mes "The shadow led me to an old mansion in the dark. That's where it's hiding.";
+	next;
+	switch( select( "Enter the Shadow Manor.", "Find the way to the Shadow Manor." ) ) {
+	case 2:
+		.@id = instance_create(.@md_name$);
+		if (.@id == -3) {
+			mes "[Verkhasel]";
+			mes "The way is already open. Choose to enter.";
+			close;
+		}
+		if (.@id < 0) {
+			mes "[Verkhasel]";
+			mes "The way won't open right now. Try again in a moment.";
+			close;
+		}
+		mes "[Verkhasel]";
+		mes "There it is. Talk to me again when you're ready to go in.";
+		close;
+	case 1:
+		switch( instance_enter(.@md_name$) ) {
+		case IE_OTHER:
+			mes "^ff0000An unknown error occurred.^000000";
+			close;
+		case IE_NOINSTANCE:
+			mes "[Verkhasel]";
+			mes "We haven't found the way yet. Ask me to find it first.";
+			close;
+		case IE_NOMEMBER:
+			mes "[Verkhasel]";
+			mes "Only the party that found the way may enter.";
+			close;
+		case IE_OK:
+			mapannounce "ve_fild05", strcharinfo(0) + " of the " + getpartyname( getcharid(1) ) + " party is entering the " + .@md_name$ + ".", bc_map, 0xFF99;
+			end;
+		}
+		end;
+	}
+	end;
+}

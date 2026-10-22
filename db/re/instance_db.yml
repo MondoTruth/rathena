@@ -600,3 +600,10 @@ Body:
       Map: 1@4drk
       X: 62
       Y: 86
+  - Id: 81
+    Name: Shadow Manor
+    TimeLimit: 3600
+    Enter:
+      Map: 1@4sac
+      X: 88
+      Y: 24
